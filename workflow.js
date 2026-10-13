@@ -53,11 +53,11 @@ function filteredCandidates(){
     return range&&(f.source==='all'||i.source===f.source)&&(f.component==='all'||i.component===f.component)&&(!f.configured||i.detail)&&(i.id+' '+i.title+' '+i.module+' '+i.cwe).toLowerCase().includes(f.query.toLowerCase());
   });
 }
-function canQueue(i){return i.detail&&i.state==='screened'&&i.screeningOutcome==='candidate';}
+function canQueue(i){return i.detail&&i.screeningOutcome==='candidate'&&['screened','queued','running','review','done','rejected'].includes(i.state);}
 function eligibleResults(){return screeningBatch.map(findIssue).filter(i=>i&&canQueue(i));}
 function screeningText(i){
   if(i.state==='screening')return '선별 대기 · 실행 중';
-  if(i.state==='running'||i.state==='review'||isCompleted(i))return '이미 보안 검증에 등록됨';
+  if(['queued','running','review','done','rejected'].includes(i.state)&&canQueue(i))return '재현 확인 · 다시 등록 가능';
   if(i.state==='queued')return '보안 검증 대기';
   if(i.screeningOutcome==='candidate')return '재현 확인 · 검증 필요';
   if(i.screeningOutcome==='skip')return '실행 대상 미구성 · 제외';
@@ -71,7 +71,7 @@ function screeningScreen(){
   const list=filteredCandidates(),batch=screeningBatch.map(findIssue).filter(Boolean),levels=['Critical','High','Medium','Low'];
   if(screeningResult){
     const avg=batch.length?batch.reduce((n,i)=>n+i.cvss,0)/batch.length:0;
-    return `${pageTitle('검증 선별',`<button class="btn secondary" data-action="back-filters">필터 다시 설정</button>`)}<div class="summary">${[['표시 이슈',batch.length],['평균 CVSS',avg.toFixed(1)],['검증 가능',eligibleResults().length],['Critical',batch.filter(i=>i.risk==='Critical').length]].map(([l,n])=>`<div class="stat"><strong>${n}</strong><span>${l}</span></div>`).join('')}</div><div class="screen-results-grid"><aside class="panel"><h2>심각도 분포</h2><p class="small muted">현재 필터링 결과</p>${levels.map(l=>{const n=batch.filter(i=>i.risk===l).length;return `<div class="distribution"><div class="spread"><span>${l}</span><b>${n}건</b></div><div class="bar ${l.toLowerCase()}"><i style="width:${batch.length?n/batch.length*100:0}%"></i></div></div>`}).join('')}<div class="notice">상세 시연 대상은 2개입니다. 실행 대상이 구성된 이슈만 보안 검증 대기열에 등록할 수 있습니다.</div></aside><section class="panel"><div class="sectionhead"><h2>필터링 결과 <span class="small muted">${batch.length}건</span></h2><span class="tag green">사전 검증 완료</span></div>${metadataTable(batch,'screening')}</section></div><div class="end-actions">${manualSelection?`<span class="muted">${screeningSelection.size}개 선택</span><button class="btn" data-action="queue-selected" ${screeningSelection.size?'':'disabled'}>선택한 이슈를 보안 검증 대기열로 →</button>`:`<button class="btn" data-action="manual-select" ${eligibleResults().length?'':'disabled'}>직접 선택하기 ↗</button><button class="btn dark" data-action="queue-all" ${eligibleResults().length?'':'disabled'}>필터된 검증 대상을 대기열로 · ${eligibleResults().length}건 →</button>`}</div>${batch.some(i=>['running','review','done'].includes(i.state))?'<p class="small muted">이미 등록된 이슈는 중복 추가하지 않습니다. 처음부터 시연하려면 상단 데모 설정을 사용하세요.</p>':''}`;
+    return `${pageTitle('검증 선별',`<button class="btn secondary" data-action="back-filters">필터 다시 설정</button>`)}<div class="summary">${[['표시 이슈',batch.length],['평균 CVSS',avg.toFixed(1)],['검증 가능',eligibleResults().length],['Critical',batch.filter(i=>i.risk==='Critical').length]].map(([l,n])=>`<div class="stat"><strong>${n}</strong><span>${l}</span></div>`).join('')}</div><div class="screen-results-grid"><aside class="panel"><h2>심각도 분포</h2><p class="small muted">현재 필터링 결과</p>${levels.map(l=>{const n=batch.filter(i=>i.risk===l).length;return `<div class="distribution"><div class="spread"><span>${l}</span><b>${n}건</b></div><div class="bar ${l.toLowerCase()}"><i style="width:${batch.length?n/batch.length*100:0}%"></i></div></div>`}).join('')}<div class="notice">상세 시연 대상은 2개입니다. 실행 대상이 구성된 이슈만 보안 검증 대기열에 등록할 수 있습니다.</div></aside><section class="panel"><div class="sectionhead"><h2>필터링 결과 <span class="small muted">${batch.length}건</span></h2><span class="tag green">사전 검증 완료</span></div>${metadataTable(batch,'screening')}</section></div><div class="end-actions">${manualSelection?`<span class="muted">${screeningSelection.size}개 선택</span><button class="btn" data-action="queue-selected" ${screeningSelection.size?'':'disabled'}>선택한 이슈를 보안 검증 대기열로 →</button>`:`<button class="btn" data-action="manual-select" ${eligibleResults().length?'':'disabled'}>직접 선택하기 ↗</button><button class="btn dark" data-action="queue-all" ${eligibleResults().length?'':'disabled'}>필터된 검증 대상을 대기열로 · ${eligibleResults().length}건 →</button>`}</div><p class="small muted">이미 등록된 대상도 대기열로 다시 보낼 수 있습니다. 다시 등록하면 해당 대상의 진행 및 결과를 초기화하고 1라운드부터 시연합니다.</p>`;
   }
   return `${pageTitle('검증 선별')}<div class="stack">${filterControls()}<section class="panel"><div class="sectionhead"><h2>티켓 현황 요약</h2><span class="tag gray">현재 필터 기준</span></div><div class="tablewrap"><table><thead><tr><th>구분</th>${levels.map(l=>`<th>${l}</th>`).join('')}<th>전체</th></tr></thead><tbody>${[['추가 검토 대상',list],['실행 대상 구성됨 · 상세 시연 가능',list.filter(hasDetail)]].map(([name,rows])=>`<tr><td>${name}</td>${levels.map(l=>`<td>${rows.filter(i=>i.risk===l).length}</td>`).join('')}<td><b>${rows.length}</b></td></tr>`).join('')}</tbody></table></div></section><section class="panel"><div class="sectionhead"><h2>선별 대기큐</h2><span class="tag ${screeningTimer?'':'gray'}">${screeningTimer?'코드 탐색 · 1회 테스트 중':batch.length+'건'}</span></div>${batch.length?`<div class="screening-queue">${batch.map(i=>`<div class="assetrow"><b>${i.id}</b><span>${screeningText(i)}</span></div>`).join('')}</div>${screeningTimer?'<div class="loading-line"></div>':''}`:'<div class="empty">필터를 설정한 뒤 사전 검증을 실행하세요.</div>'}</section></div>`;
 }
@@ -107,8 +107,11 @@ function roundDialog(n){
   showDialog(`라운드 ${n} · ${done?r.winner:'진행 중'}`,done?`<div class="round-dialog-result ${r.winnerKey}"><span>WINNER</span><strong>${r.winner}</strong><small>${r.loser}</small></div><h3>${r.title}</h3><p>${r.desc}</p><p class="mono">poc_v${n}.py · patch_v${n}.diff</p>`:`<div class="round-dialog-result current"><strong>승부 진행 중</strong><p>${stepNames[i.step]}</p></div>`);
 }
 function enqueue(ids){
-  const added=ids.map(findIssue).filter(i=>i&&canQueue(i));
-  added.forEach(i=>{i.state='queued';i.stage='prepare';i.queue=[];});
+  const added=[...new Set(ids)].map(findIssue).filter(i=>i&&canQueue(i));
+  added.forEach(i=>{
+    i.state='queued';i.stage='prepare';i.round=1;i.step=0;i.queue=[];i.impactReviewed=false;
+    for(const key of ['deployment','feedback','comment','commentSent','ossDraft','ossReported'])delete i[key];
+  });
   screeningSelection.clear();notify(added.length?`${added.length}개 이슈를 보안 검증 대기열에 추가했습니다.`:'추가할 수 있는 이슈가 없습니다.');
   if(added.length)go('security');else render();
 }
