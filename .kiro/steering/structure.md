@@ -1,11 +1,17 @@
-# Project structure and integration points
+# Structure and integration points
 
-- `index.html`: static shell, `#app`, `#dialog`, and `#toast`.
-- `styles.css`: layout, components, state colors, responsive rules, and placeholder artwork styles.
-- `demo-data.js`: `agents`, `initial`, `issues`, the active view/filters, and UI state names.
-- `app.js`: `render()`, view builders (`dashboard()`, `workflow()`, `detail()`), `bird()`, and event handlers. `advance()` simulates a review phase change; button handlers simulate other mutations.
-- `assets/`: independent visual files. Keep image bytes out of HTML and JavaScript.
+- index.html: five-menu shell, dialogs and toast.
+- demo-data.js: agents, 30 issues, two detailed patches, mutable issue state.
+- app.js: reusable map, battle, round records and common UI functions.
+- workflow.js: rendering/navigation, filters, queues, patch decisions and follow-up.
+  This file owns the delegated event handler.
+- styles.css: original components; workflow.css: new layout overrides.
+- assets/: logo and external BinBird images. No Base64 embedding.
 
-For backend work, define the issue DTO and endpoint behavior with the backend team. Then centralize fetching and mutations instead of scattering requests through view builders. Existing actions must display loading and error states before removing sample data. Preserve human review as an explicit action; the prototype's buttons do not submit to a server today.
+Script order: demo-data.js, app.js, assets/binbirds.js, workflow.js, all defer.
+workflow.js supplies the initial render after the artwork binding is available.
 
-Use the HTML file as the runnable entry point. Do not assume a React/TSX app or convert frameworks solely for Kiro: source separation and small files already make this project readable.
+Selection batch and security queue must remain separate. Do not duplicate issues
+or include rejected/dismissed issues in Result Processing. Require impact
+acknowledgement before approval. Real deployment must await successful backend
+response before marking the patch done. See README for API replacement points.

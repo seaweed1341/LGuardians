@@ -5,10 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>LGuardians · 에이전트 협업</title>
 <link rel="stylesheet" href="./styles.css">
+<link rel="stylesheet" href="./workflow.css">
 </head>
 <body>
 
-<header><button class="brand" data-go="dashboard" aria-label="LGuardians 대시보드"><img class="brand-logo" src="./assets/lguardians-logo.svg" alt="LGuardians"><span class="demo">DEMO</span></button><nav aria-label="주 메뉴"><button data-go="dashboard" id="nav-dashboard">이슈 대시보드</button><button data-go="workflow" id="nav-workflow">워크플로우 보드</button></nav><div class="headright"><div class="notification-anchor"><button data-action="notifications" aria-label="알림 센터" aria-expanded="false" id="notification-button"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" style="vertical-align:middle; margin-right:4px" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M3 11V6a5 5 0 0110 0v5l1 1H2l1-1Z"/><path d="M6 14h4"/></svg> <span id="notification-count">2</span></button><div id="notification-panel" class="notification-panel hidden" role="region" aria-label="리뷰 알림"></div></div><span class="avatar">MK</span><span class="name">minsuk.kang</span></div></header>
+<header><button class="brand" data-go="home" aria-label="LGuardians 홈"><img class="brand-logo" src="./assets/lguardians-logo.svg" alt="LGuardians"><span class="demo">DEMO</span></button><nav aria-label="주 메뉴"><button data-go="home" id="nav-home">홈</button><button data-go="board" id="nav-board">이슈 보드</button><button data-go="screening" id="nav-screening">검증 선별</button><button data-go="security" id="nav-security">보안 검증</button><button data-go="results" id="nav-results">결과처리</button></nav><div class="headright"><button class="demo-tools" data-action="demo-menu">데모 설정</button><div class="notification-anchor"><button data-action="notifications" aria-label="알림 센터" aria-expanded="false" id="notification-button"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" style="vertical-align:middle; margin-right:4px" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M3 11V6a5 5 0 0110 0v5l1 1H2l1-1Z"/><path d="M6 14h4"/></svg> <span id="notification-count">2</span></button><div id="notification-panel" class="notification-panel hidden" role="region" aria-label="리뷰 알림"></div></div><span class="avatar">MK</span><span class="name">minsuk.kang</span></div></header>
 
 <main id="app"></main>
 
@@ -17,5 +18,7 @@
 <script src="./demo-data.js" defer></script>
 <script src="./app.js" defer></script>
 <script src="./assets/binbirds.js" defer></script>
+<script src="./workflow.js" defer></script>
 </body>
 </html>
+

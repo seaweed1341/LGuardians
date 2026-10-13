@@ -15,12 +15,12 @@
     2: ['working', 'waiting', 'sleeping', 'error'],
     3: ['working', 'waiting', 'sleeping', 'win', 'lose', 'error'],
     4: ['working', 'waiting', 'sleeping', 'win', 'lose', 'error'],
-    5: ['standing', 'working', 'waiting', 'sleeping', 'error'],
+    5: ['stand', 'working', 'waiting', 'sleeping', 'error'],
     6: ['working', 'waiting', 'sleeping', 'error'],
   };
 
   const STATE_LABELS = {
-    standing: '기본',
+    stand: '기본',
     working: '작업 중',
     waiting: '대기',
     sleeping: '수면',
@@ -34,7 +34,7 @@
     2: 'waiting',
     3: 'waiting',
     4: 'waiting',
-    5: 'standing',
+    5: 'stand',
     6: 'waiting',
   };
 

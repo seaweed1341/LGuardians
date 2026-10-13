@@ -1,22 +1,76 @@
-# LGuardians frontend demo
+# LGuardians · 해커톤 발표 데모
 
-This is a static prototype of the security review dashboard. Open `index.html` in a browser or serve this folder with a static HTTP server. No build step or dependency installation is required.
+정적 HTML/CSS/JavaScript 프로토타입입니다. 30개 샘플 이슈 중 2개에 코드 탐색,
+사전 검증, 공격·방어 라운드, 패치 승인·거절과 결과처리 상세를 제공합니다.
+실제 스캐너, 배포 시스템, Jira/cCc 또는 오픈소스 신고 채널에는 연결하지 않습니다.
 
-## Files
+## 실행
 
-| File | Purpose |
-| --- | --- |
-| `index.html` | Header, app mount point, dialog, and script/style references |
-| `styles.css` | Violet theme, Indigo defense styles, layouts, and motion |
-| `demo-data.js` | Six agent definitions, sample issues, and in-memory UI state |
-| `app.js` | Dashboard, workflow, detail views, rendering, and demo interactions |
-| `assets/lguardians-logo.svg` | Header logo |
-| `.kiro/steering/` | Project context for Kiro |
+`index.html`을 브라우저에서 열거나 이 폴더를 정적 서버로 제공하세요.
+빌드나 패키지 설치는 필요하지 않습니다. 새로고침하면 데모 상태가 초기화됩니다.
 
-The Binbird artwork is temporarily represented by labeled `이미지` placeholders in `bird()` (`app.js`). The logo remains an external SVG. No Base64 artwork is embedded in source files.
+## 메뉴
 
-## Backend handoff
+- **홈**: 단계별 현황과 기존 에이전트 워크플로우 지도.
+- **이슈 보드**: 전체 30개 이슈. 24개 추가 검토 대상과 6개 Not a bug 빠른 조치 대상.
+- **검증 선별**: CVSS 구간/직접 범위, 검색, 입력 경로, Component, 실행 가능 여부 필터.
+  선별 대기큐에서 코드 탐색과 1회 실행·테스트를 시뮬레이션한 뒤 결과를 표시합니다.
+  실행 가능한 2개 이슈를 직접 선택하거나 일괄로 보안 검증 대기열에 보냅니다.
+  나머지 22개는 목록 시연용이며 실행 대상 미구성으로 표시합니다.
+- **보안 검증**: 진행 중 라운드, 우측 완료 라운드, 하단 대기열. 대기 항목 취소와 검증 시작.
+  기존 공격/방어 화면과 라운드 이력을 재사용합니다. 완료 후 패치와 영향도 분석을
+  확인하고 승인하거나 거절합니다. 승인은 데모 배포 완료까지 이어집니다.
+- **결과처리**: 승인·배포 완료 이슈만 표시. 패치별 요약 코멘트 생성·편집·복사,
+  Jira 또는 cCc 전송 시연. OSS 대상은 기여 리포트를 작성·제출할 수 있습니다.
 
-The current UI uses `initial` sample issues and mutates `issues` in memory. Reloading the page resets them. Buttons such as review start, phase advance, approval, and feedback only change local demo state. There are no API calls, authentication, or real security actions.
+## 발표 시연 순서
 
-To connect actual data, agree on an API contract first. Map backend issue fields into the UI model in `demo-data.js`, then replace local mutations in `app.js` with requests and server state refreshes. Keep the existing `ready`, `running`, `review`, and `done` UI states unless the team agrees on a mapping. Do not put keys or credentials in this public repository.
+기본 상태는 **LGPSVE-2445 진행 중**, **LGPSVE-2446 패치 승인 대기**입니다.
+완료된 패치가 없으므로 처음에는 결과처리가 비어 있습니다.
+
+1. 상단 **데모 설정 → 검증 선별부터 시연**을 선택합니다.
+2. 검증 선별에서 **실행 가능한 대상만**을 체크하고 사전 검증을 실행합니다.
+3. 결과에서 직접 선택 또는 전체 등록으로 2개 이슈를 보안 검증 대기열에 보냅니다.
+4. 대기열에서 검증을 시작하고 **자동 진행** 또는 **다음 단계**로 3라운드를 진행합니다.
+   기존 화면은 최대 5라운드를 표시하며 데모는 3라운드에서 종료합니다.
+5. 영향도 분석을 확인한 뒤 패치를 승인합니다. 데모 배포가 완료됩니다.
+6. 결과처리에서 코멘트를 생성하고 전송합니다. LGPSVE-2446은 OSS 리포트도 시연할 수 있습니다.
+
+거절한 패치와 Not a bug로 처리한 항목은 결과처리에 포함하지 않습니다.
+대기열 중복 등록을 방지하고, 취소하면 선별 완료 상태로 되돌립니다.
+**기본 화면으로 초기화**는 진행 중/승인 대기 화면을 즉시 복원합니다.
+
+## 코드 구조
+
+- `index.html`: 5개 메뉴, 대화상자, 알림과 스크립트 로딩.
+- `demo-data.js`: 에이전트, 샘플 이슈 30개, 2개 패치 및 UI 상태.
+- `app.js`: 기존 워크플로우 지도, 라운드/맥락/검증 화면과 공통 UI 함수.
+- `workflow.js`: 새 화면, 필터, 선별 큐, 보안 검증 큐, 승인·거절과 결과처리 이벤트.
+- `styles.css`: 기존 디자인. `workflow.css`: 새 워크플로우 레이아웃 보완.
+- `assets/binbirds.js`: 캐릭터 파일 매핑. 기본 자세 파일명은 `stand.webp`.
+
+## 백엔드 연결 지점
+
+현재 상태는 브라우저 메모리에만 저장합니다. 실제 API로 교체할 때는 로딩·실패·재시도
+상태와 성공 응답에 따른 갱신을 추가하세요. 영향도 분석 팝업은 팀원 기능을 연결할 샘플입니다.
+
+| 기능 | 연결 지점 |
+|---|---|
+| 이슈 조회 | `demo-data.js`의 `initial` / `issues` |
+| Not a bug 조치 | `quick-all`, `data-quick` 이벤트 |
+| 사전 검증 | `runScreening()` · `screeningBatch`는 보안 검증 큐와 별개 |
+| 보안 검증 등록·취소·시작 | `enqueue()`, `data-cancel`, `startVerification()` |
+| 라운드 상태 스트림 | `advance()`의 시뮬레이션을 실제 이벤트로 교체 |
+| 영향도 분석 | `impact` 이벤트의 팝업 · `impactReviewed` |
+| 승인 및 배포 | `approve` 이벤트 · 실제 배포 성공 후에만 `deployment='complete'` |
+| 패치 거절 | `confirm-reject` 이벤트 · 사유 포함 |
+| 코멘트 생성·전송 | `commentText()`, `commentDialog()`, `send-comment` 이벤트 |
+| OSS 리포트 | `ossDialog()`, `submit-oss` 이벤트 |
+
+코멘트와 OSS 초안은 사용자가 편집하고 전송/제출 버튼을 누른 경우에만 데모 전송 완료로 표시합니다.
+
+## 확인한 시나리오
+
+Chrome에서 30개 목록, 빠른 조치, 범위 검증과 검색, 개별/전체 큐 등록, 취소,
+라운드 진행, 영향도 확인 전 승인 비활성화, 승인·거절에 따른 결과 포함 여부,
+코멘트 편집과 빈 내용 검증, OSS 제출, 초기화, 모바일 레이아웃을 확인했습니다.
