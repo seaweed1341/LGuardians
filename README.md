@@ -47,7 +47,8 @@
 - `app.js`: 기존 워크플로우 지도, 라운드/맥락/검증 화면과 공통 UI 함수.
 - `workflow.js`: 새 화면, 필터, 선별 큐, 보안 검증 큐, 승인·거절과 결과처리 이벤트.
 - `styles.css`: 기존 디자인. `workflow.css`: 새 워크플로우 레이아웃 보완.
-- `assets/binbirds.js`: 캐릭터 파일 매핑. 기본 자세 파일명은 `stand.webp`.
+- 빈버드 영역은 `app.js`의 `bird()`가 텍스트 `이미지` placeholder로 표시합니다.
+  `assets/binbirds.js`와 이미지 리소스는 보관하되 현재 화면에서는 로드하지 않습니다.
 
 ## 백엔드 연결 지점
 
